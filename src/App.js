@@ -14,6 +14,7 @@ import ProductCard from "./ProductCard";
 import FilterOptions from "./FilterOptions";
 import Cart from "./ShoppingCart";
 import { useSnackbar } from "notistack";
+
 const App = () => {
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
@@ -34,7 +35,7 @@ const App = () => {
         setProducts(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching data: ", error);
+        enqueueSnackbar(error.message, { variant: "error" });
       });
   }, []);
   const [isCartVisible, setIsCartVisible] = useState(false);
@@ -88,6 +89,7 @@ const App = () => {
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
+  
   const handleFilter = (event) => {
     if (event.target.checked) {
       setFilter({
@@ -103,6 +105,7 @@ const App = () => {
       });
     }
   };
+
   const filteredProducts = products.filter(
     (product) =>
       (search
@@ -128,10 +131,10 @@ const App = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             TeeRex Store
           </Typography>
-          <Button color="inherit" onClick={() => showProduct()}>
+          <Button color="inherit" onClick={showProduct}>
             Products
           </Button>
-          <IconButton size="large" color="inherit" onClick={() => showCart()}>
+          <IconButton size="large" color="inherit" onClick={showCart}>
             <ShoppingCartIcon />
           </IconButton>
         </Toolbar>
@@ -152,21 +155,28 @@ const App = () => {
         <Cart cart={cart} removeFromCart={removeFromCart} />
       ) : (
         <>
-          {" "}
           <Grid container spacing={2}>
             <Grid item xs={12} md={2} bg="#E9F5E1">
               <FilterOptions handleFilter={handleFilter} />
             </Grid>
             <Grid item xs={12} md={10}>
               <Grid container spacing={2}>
-                {filteredProducts.map((product) => (
-                  <Grid item xs={12} sm={6} md={3} key={product.id}>
-                    <ProductCard
-                      product={product}
-                      handleAddToCart={addToCart}
-                    />
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <Grid item xs={12} sm={6} md={3} key={product.id}>
+                      <ProductCard
+                        product={product}
+                        handleAddToCart={addToCart}
+                      />
+                    </Grid>
+                  ))
+                ) : (
+                  <Grid item xs={12} >
+                    <Typography variant="h6" textAlign="center">
+                      No products found matching your search criteria.
+                    </Typography>
                   </Grid>
-                ))}
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -175,4 +185,5 @@ const App = () => {
     </div>
   );
 };
+
 export default App;
